@@ -5,7 +5,7 @@ from decouple import config
 TRANSFORMERS_ACCESS_TOKEN = config("TRANSFORMERS_ACCESS_TOKEN")
 
 def llama3():
-    pipeline = transformers.pipeline(
+    pipe = transformers.pipeline(
         "text-generation",
         model="meta-llama/Meta-Llama-3-8B-Instruct",
         model_kwargs={"torch_dtype": torch.bfloat16},
@@ -18,18 +18,18 @@ def llama3():
         {"role": "user", "content": "Who are you?"},
     ]
 
-    prompt = pipeline.tokenizer.apply_chat_template(
+    prompt = pipelinpipee.tokenizer.apply_chat_template(
         messages, 
         tokenize=False, 
         add_generation_prompt=True
     )
 
     terminators = [
-        pipeline.tokenizer.eos_token_id,
-        pipeline.tokenizer.convert_tokens_to_ids("<|eot_id|>")
+        pipe.tokenizer.eos_token_id,
+        pipe.tokenizer.convert_tokens_to_ids("<|eot_id|>")
     ]
 
-    outputs = pipeline(
+    outputs = pipe(
         prompt,
         max_new_tokens=256,
         eos_token_id=terminators,

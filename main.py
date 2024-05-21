@@ -1,7 +1,7 @@
-from llama3 import llama3
+from gpt2 import gpt2
 
 def main():
-    llama3()
+    gpt2()
 
 if __name__ == "__main__":
     main()
