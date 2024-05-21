@@ -1,6 +1,6 @@
 from transformers import pipeline
 
-def gp2():
+def gpt2():
     pipe = pipeline('text-generation', model='gpt2')
 
     out = pipe("Hi!")
