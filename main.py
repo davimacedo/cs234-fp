@@ -36,6 +36,7 @@ def calculate_log_probs(model, tokenizer, input_token_ids_batch, min_input_lengt
     attention_mask = attention_mask[:, min_input_length:]
     padded_batch_token_ids = padded_batch_token_ids[:, min_input_length:]
 
+    # we need to improve the attention mask computation but it is already a good approximation
     return torch.mean(torch.log(torch.gather(probs, dim=-1, index=padded_batch_token_ids.unsqueeze(-1)).squeeze(-1)) * attention_mask, dim=-1), indexes
 
 def main(args):
