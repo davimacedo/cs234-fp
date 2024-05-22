@@ -5,16 +5,24 @@ from tqdm import tqdm
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
+def select(array, indexes):
+    if isinstance(array, torch.Tensor):
+        return array[indexes]
+    else:
+        return [item for index, item in enumerate(array) if index in indexes]
+
 def calculate_log_probs(model, tokenizer, input_token_ids_batch, min_input_length, output_texts_batch):
     output_token_ids_batch = [tokenizer.encode(text, add_special_tokens=False) for text in output_texts_batch]
 
     batch_token_ids = []
+    indexes = []
 
-    for input_token_ids, output_token_ids in zip(input_token_ids_batch, output_token_ids_batch):
+    for i, (input_token_ids, output_token_ids) in enumerate(zip(input_token_ids_batch, output_token_ids_batch)):
         token_ids = input_token_ids + output_token_ids + [tokenizer.eos_token_id]
         if len(token_ids) <= 1024:
             batch_token_ids.append(token_ids)
-
+            indexes.append(i)
+        
     max_length = max(len(token_ids) for token_ids in batch_token_ids)
     padded_batch_token_ids = torch.tensor([token_ids + [tokenizer.eos_token_id] * (max_length - len(token_ids)) for token_ids in batch_token_ids], dtype=torch.long, device=device)
     
@@ -28,7 +36,7 @@ def calculate_log_probs(model, tokenizer, input_token_ids_batch, min_input_lengt
     attention_mask = attention_mask[:, min_input_length:]
     padded_batch_token_ids = padded_batch_token_ids[:, min_input_length:]
 
-    return torch.sum(torch.log(torch.gather(probs, dim=-1, index=padded_batch_token_ids.unsqueeze(-1)).squeeze(-1) * attention_mask), dim=-1)
+    return torch.mean(torch.log(torch.gather(probs, dim=-1, index=padded_batch_token_ids.unsqueeze(-1)).squeeze(-1) * attention_mask), dim=-1), indexes
 
 def main(args):
     data = torch.load("datasets/extracted_anthropic_hh.pth")
@@ -54,7 +62,7 @@ def main(args):
             input_token_ids_batch = [tokenizer.encode(text, add_special_tokens=False) for text in input_texts_batch]
             min_input_length = min(len(token_ids) for token_ids in input_token_ids_batch)
             
-            chosen_log_probs = calculate_log_probs(
+            chosen_log_probs, chosen_indexes = calculate_log_probs(
                 model,
                 tokenizer,
                 input_token_ids_batch,
@@ -62,17 +70,20 @@ def main(args):
                 chosen_output_texts[i:i + args.batch]
             )
 
-            rejected_log_probs = calculate_log_probs(
+            rejected_log_probs, rejected_indexes = calculate_log_probs(
                 model,
                 tokenizer,
-                input_token_ids_batch,
+                select(input_token_ids_batch, chosen_indexes),
                 min_input_length,
-                rejected_output_texts[i:i + args.batch]
+                select(rejected_output_texts[i:i + args.batch], chosen_indexes)
             )
 
-            correct += torch.sum((chosen_log_probs > rejected_log_probs).long()).item()
-            evaluated += len(input_texts_batch)
-            print(f"accuracy = {correct / evaluated}")
+            chosen_log_probs = select(chosen_log_probs[rejected_indexes], chosen_indexes)
+
+            correct += torch.sum((chosen_log_probs >= rejected_log_probs).long()).item()
+            evaluated += len(chosen_log_probs)
+
+            tqdm.write(f"accuracy = {correct / evaluated}")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
