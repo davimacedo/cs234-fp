@@ -18,7 +18,7 @@ def calculate_log_probs(model, tokenizer, input_token_ids_batch, min_input_lengt
     max_length = max(len(token_ids) for token_ids in batch_token_ids)
     padded_batch_token_ids = torch.tensor([token_ids + [tokenizer.eos_token_id] * (max_length - len(token_ids)) for token_ids in batch_token_ids], dtype=torch.long, device=device)
     
-    attention_mask = torch.zeros(padded_batch_token_ids.shape)
+    attention_mask = torch.zeros(padded_batch_token_ids.shape, device=device)
     
     for i, attention_mask_row in enumerate(attention_mask):
         attention_mask_row[:len(batch_token_ids[i])] = 1
@@ -28,7 +28,7 @@ def calculate_log_probs(model, tokenizer, input_token_ids_batch, min_input_lengt
     attention_mask = attention_mask[:, min_input_length:]
     padded_batch_token_ids = padded_batch_token_ids[:, min_input_length:]
 
-    log_probs = torch.sum(torch.log(torch.gather(probs, dim=-1, index=padded_batch_token_ids.unsqueeze(-1)).squeeze(-1) * attention_mask), dim=-1)
+    return torch.sum(torch.log(torch.gather(probs, dim=-1, index=padded_batch_token_ids.unsqueeze(-1)).squeeze(-1) * attention_mask), dim=-1)
 
 def main(args):
     data = torch.load("datasets/extracted_anthropic_hh.pth")
