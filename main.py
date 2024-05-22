@@ -36,7 +36,7 @@ def calculate_log_probs(model, tokenizer, input_token_ids_batch, min_input_lengt
     attention_mask = attention_mask[:, min_input_length:]
     padded_batch_token_ids = padded_batch_token_ids[:, min_input_length:]
 
-    return torch.mean(torch.log(torch.gather(probs, dim=-1, index=padded_batch_token_ids.unsqueeze(-1)).squeeze(-1) * attention_mask), dim=-1), indexes
+    return torch.mean(torch.log(torch.gather(probs, dim=-1, index=padded_batch_token_ids.unsqueeze(-1)).squeeze(-1)) * attention_mask, dim=-1), indexes
 
 def main(args):
     data = torch.load("datasets/extracted_anthropic_hh.pth")
@@ -80,10 +80,12 @@ def main(args):
 
             chosen_log_probs = select(chosen_log_probs[rejected_indexes], chosen_indexes)
 
-            correct += torch.sum((chosen_log_probs >= rejected_log_probs).long()).item()
-            evaluated += len(chosen_log_probs)
+            batch_correct = torch.sum((chosen_log_probs > rejected_log_probs).long()).item()
+            correct += batch_correct
+            batch_evaluated = len(chosen_log_probs)
+            evaluated += batch_evaluated
 
-            tqdm.write(f"accuracy = {correct / evaluated}")
+            tqdm.write(f"batch accuracy = {batch_correct / batch_evaluated}; accumulated accuracy {correct / evaluated};")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

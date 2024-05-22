@@ -84,9 +84,10 @@ def main(args):
             else:
                 input_text += ASSISTANT_PREFIX
 
-                input_texts.append(input_text)
-                chosen_output_texts.append(chosen_message["content"])
-                rejected_output_texts.append(rejected_message["content"])
+                if chosen_message["content"] != rejected_message["content"]:
+                    input_texts.append(input_text)
+                    chosen_output_texts.append(chosen_message["content"])
+                    rejected_output_texts.append(rejected_message["content"])
 
                 input_text += chosen_message["content"]
         
@@ -112,7 +113,7 @@ def main(args):
             "datasets/tokenized_anthropic_hh.pth"
         )
 
-    print(f"saved {len(input_texts)} samples")
+    print(f"extracted {len(input_texts)} samples from {len(train_dataset)} original samples")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
