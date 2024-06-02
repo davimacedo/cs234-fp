@@ -11,8 +11,9 @@ def select(array, indexes):
     else:
         return [item for index, item in enumerate(array) if index in indexes]
 
-def calculate_log_probs(model, tokenizer, input_token_ids_batch, min_input_length, output_texts_batch):
-    output_token_ids_batch = [tokenizer.encode(text, add_special_tokens=False) for text in output_texts_batch]
+def calculate_log_probs(model, tokenizer, input_token_ids_batch, min_input_length, output_texts_batch, output_token_ids_batch):
+    if output_token_ids_batch is None:
+        output_token_ids_batch = [tokenizer.encode(text, add_special_tokens=False) for text in output_texts_batch]
 
     batch_token_ids = []
     indexes = []
@@ -47,6 +48,9 @@ def main(args):
     input_texts = data["input_texts"]
     chosen_output_texts = data["chosen_output_texts"]
     rejected_output_texts = data["rejected_output_texts"]
+    input_token_ids = data["input_token_ids"] if input_token_ids in data else None
+    chosen_output_token_ids = data["chosen_output_token_ids"] if chosen_output_token_ids in data else None
+    rejected_output_token_ids = data["rejected_output_token_ids"] if rejected_output_token_ids in data else None
 
     total = len(input_texts)
     print(f"loaded {total} samples")
@@ -62,8 +66,14 @@ def main(args):
     
     with torch.no_grad():
         for i in tqdm(range(0, total, args.batch)):
-            input_texts_batch = input_texts[i:i + args.batch]
-            input_token_ids_batch = [tokenizer.encode(text, add_special_tokens=False) for text in input_texts_batch]
+            input_token_ids_batch = None
+
+            if input_token_ids is not None:
+                input_token_ids_batch = input_token_ids[i:i + args.batch]
+            else:
+                input_texts_batch = input_texts[i:i + args.batch]
+                input_token_ids_batch = [tokenizer.encode(text, add_special_tokens=False) for text in input_texts_batch]
+            
             min_input_length = min(len(token_ids) for token_ids in input_token_ids_batch)
             
             chosen_log_probs, chosen_indexes = calculate_log_probs(
@@ -71,7 +81,8 @@ def main(args):
                 tokenizer,
                 input_token_ids_batch,
                 min_input_length,
-                chosen_output_texts[i:i + args.batch]
+                chosen_output_texts[i:i + args.batch],
+                chosen_output_token_ids[i:i + args.batch]
             )
 
             rejected_log_probs, rejected_indexes = calculate_log_probs(
@@ -79,7 +90,8 @@ def main(args):
                 tokenizer,
                 select(input_token_ids_batch, chosen_indexes),
                 min_input_length,
-                select(rejected_output_texts[i:i + args.batch], chosen_indexes)
+                select(rejected_output_texts[i:i + args.batch], chosen_indexes),
+                select(rejected_output_token_ids[i:i + args.batch], chosen_indexes)
             )
 
             chosen_log_probs = select(chosen_log_probs[rejected_indexes], chosen_indexes)
