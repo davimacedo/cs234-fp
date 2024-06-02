@@ -106,9 +106,9 @@ def main(args):
 
         torch.save(
             {
-                "input_encodings": [tokenizer.encode(text) for text in input_texts],
-                "chosen_output_encodings": [tokenizer.encode(text) for text in chosen_output_texts],
-                "rejected_output_encodings": [tokenizer.encode(text) for text in rejected_output_texts],
+                "input_encodings": [tokenizer.encode(text, add_special_tokens=False) for text in input_texts],
+                "chosen_output_encodings": [tokenizer.encode(text, add_special_tokens=False) for text in chosen_output_texts],
+                "rejected_output_encodings": [tokenizer.encode(text, add_special_tokens=False) for text in rejected_output_texts],
             },
             "datasets/tokenized_anthropic_hh.pth"
         )
