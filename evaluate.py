@@ -41,7 +41,7 @@ def calculate_log_probs(model, tokenizer, input_token_ids_batch, min_input_lengt
     probs_mask = probs_mask[:, min_input_length:]
     padded_batch_token_ids = padded_batch_token_ids[:, min_input_length:]
 
-    return torch.mean(torch.log(torch.gather(probs, dim=-1, index=padded_batch_token_ids.unsqueeze(-1)).squeeze(-1)) * probs_mask, dim=-1), indexes
+    return torch.sum(torch.log(torch.gather(probs, dim=-1, index=padded_batch_token_ids.unsqueeze(-1)).squeeze(-1)) * probs_mask, dim=-1), indexes
 
 def main(args):
     data = torch.load("datasets/extracted_anthropic_hh.pth")
@@ -82,7 +82,7 @@ def main(args):
                 input_token_ids_batch,
                 min_input_length,
                 chosen_output_texts[i:i + args.batch],
-                chosen_output_token_ids[i:i + args.batch]
+                chosen_output_token_ids[i:i + args.batch] if chosen_output_token_ids is not None else None
             )
 
             rejected_log_probs, rejected_indexes = calculate_log_probs(
@@ -91,7 +91,7 @@ def main(args):
                 select(input_token_ids_batch, chosen_indexes),
                 min_input_length,
                 select(rejected_output_texts[i:i + args.batch], chosen_indexes),
-                select(rejected_output_token_ids[i:i + args.batch], chosen_indexes)
+                select(rejected_output_token_ids[i:i + args.batch], chosen_indexes) if rejected_output_token_ids is not None else None
             )
 
             chosen_log_probs = select(chosen_log_probs[rejected_indexes], chosen_indexes)
