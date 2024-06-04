@@ -3,7 +3,7 @@ import torch
 import argparse
 from tqdm import tqdm
 from evaluate import select, calculate_log_probs
-from sentiment import predict_sentiment
+from sentiment import predict_sentiments
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -55,7 +55,9 @@ def main(args):
             rewards_batch = select(rewards[i:i + args.batch], indexes)
         else:
             next_texts_batch = select(next_texts[i:i + args.batch], indexes)
-            rewards_batch = predict_sentiment(next_texts_batch)
+            rewards_batch = predict_sentiments(next_texts_batch)
+        
+        rewards_batch.to(device)
 
         loss = -torch.mean(probs * rewards)
 
