@@ -68,12 +68,12 @@ def main(args):
         total_batches = 0
 
         for batch in tqdm(dataloader):
-            input_texts_batch = batch["input_text"]
-            output_texts_batch = batch["output_text"]
-            next_texts_batch = batch["next_text"]
-            input_token_ids_batch = batch.get("input_token_id")
-            output_token_ids_batch = batch.get("output_token_id")
-            rewards_batch = batch.get("reward")
+            input_texts_batch = [item["input_text"] for item in batch]
+            output_texts_batch = [item["output_text"] for item in batch]
+            next_texts_batch = [item["next_text"] for item in batch]
+            input_token_ids_batch = [item.get("input_token_id") for item in batch] if input_token_ids is not None else None
+            output_token_ids_batch = [item.get("output_token_id") for item in batch] if output_token_ids is not None else None
+            rewards_batch = [item.get("reward") for item in batch] if rewards is not None else None
 
             optimizer.zero_grad()
             
