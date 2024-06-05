@@ -60,7 +60,7 @@ def main(args):
                 select(rejected_output_token_ids[i:i + args.batch], chosen_indexes) if rejected_output_token_ids is not None else None
             )
 
-            chosen_log_probs = select(chosen_log_probs[rejected_indexes], chosen_indexes)
+            chosen_log_probs = select(chosen_log_probs, rejected_indexes)
 
             batch_correct = torch.sum((chosen_log_probs > rejected_log_probs).long()).item()
             correct += batch_correct
