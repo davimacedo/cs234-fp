@@ -132,7 +132,7 @@ def main(args):
 
                 tqdm.write(f"batch loss = {batch_accumulated}")
 
-        tqdm.write(f"epoch loss = {epoch_accumulated / total_batches}")
+        tqdm.write(f"epoch {epoch} loss = {epoch_accumulated / total_batches}")
 
         torch.save(
             model.state_dict(),

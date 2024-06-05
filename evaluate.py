@@ -63,7 +63,7 @@ def main(args):
             batch_evaluated = len(chosen_log_probs)
             evaluated += batch_evaluated
 
-            tqdm.write(f"batch accuracy = {batch_correct / batch_evaluated}; accumulated accuracy {correct / evaluated};")
+            tqdm.write(f"batch {i} accuracy = {batch_correct / batch_evaluated}; accumulated accuracy {correct / evaluated};")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
