@@ -11,8 +11,8 @@ def main(args):
     input_texts = data["input_texts"]
     output_texts = data["output_texts"]
     next_texts = data["next_texts"]
-    input_token_ids = torch.tensor(data["input_token_ids"]) if "input_token_ids" in data else None
-    output_token_ids = torch.tensor(data["output_token_ids"]) if "output_token_ids" in data else None
+    input_token_ids = data["input_token_ids"] if "input_token_ids" in data else None
+    output_token_ids = data["output_token_ids"] if "output_token_ids" in data else None
     rewards = torch.tensor(data["rewards"]) if "rewards" in data else None
 
     total = len(input_texts)
