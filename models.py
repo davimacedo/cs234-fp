@@ -17,7 +17,7 @@ def get_model(model_name, load_state_dict=False):
         param.requires_grad=False
 
     for param in model.lm_head.parameters():
-        param.requires_grad=False
+        param.requires_grad=True
 
     return model
 
