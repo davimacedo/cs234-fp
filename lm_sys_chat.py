@@ -87,7 +87,10 @@ def main(args):
 
         print("tokenizing texts...")
 
-        for input_text, output_text in tqdm(zip(final_input_texts, final_output_texts)):
+        texts = zip(final_input_texts, final_output_texts)
+
+        for i in tqdm(range(len(texts))):
+            input_text, output_text = texts[i]
             extracted["input_token_ids"].append(tokenizer.encode(input_text, add_special_tokens=False))
             extracted["output_token_ids"].append(tokenizer.encode(output_text, add_special_tokens=False))
 
