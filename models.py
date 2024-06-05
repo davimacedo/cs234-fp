@@ -15,12 +15,15 @@ def get_model(model_name, load_state_dict=False):
     model.to(device)
 
     for param in model.parameters():
-        param.requires_grad=False
+        param.requires_grad=True
 
     for param in model.lm_head.parameters():
         param.requires_grad=True
 
     return model
+
+def get_parameters(model):
+    return model.parameters() + model.lm_head.parameters()
 
 def main(args):
     model_name = get_model_name(args)

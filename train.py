@@ -6,7 +6,7 @@ from sentiment import predict_sentiments
 from settings import device
 from utils import select, calculate_log_probs
 from torch.utils.data import Dataset, DataLoader
-from models import get_model_name, get_model
+from models import get_model_name, get_model, get_parameters
 
 class ChatDataset(Dataset):
     def __init__(self, input_texts, output_texts, next_texts, input_token_ids=None, output_token_ids=None, rewards=None):
@@ -59,7 +59,7 @@ def main(args):
     model = get_model(model_name)
     model.train()
 
-    optimizer = torch.optim.AdamW(model.lm_head.parameters(), lr=args.lr)
+    optimizer = torch.optim.AdamW(get_parameters(model), lr=args.lr)
 
     for epoch in range(args.epochs):
         print(f"training epoch {epoch}")
