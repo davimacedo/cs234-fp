@@ -59,7 +59,10 @@ def main(args):
             next_texts_batch = select(next_texts[i:i + args.batch], indexes)
             rewards_batch = predict_sentiments(next_texts_batch)
         
-        rewards_batch.to(device)
+        if isinstance(rewards_batch, torch.Tensor):
+            rewards_batch = rewards_batch.to(device)
+        elif isinstance(rewards_batch, list):
+            rewards_batch = torch.tensor(rewards_batch, device=device)
         
         loss = -torch.mean(probs * rewards_batch)
 
