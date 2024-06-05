@@ -35,6 +35,9 @@ class ChatDataset(Dataset):
         
         return sample
 
+def collate_fn(batch):
+    return batch
+
 def main(args):
     data = torch.load("datasets/extracted_lm_sys_chat.pth")
     input_texts = data["input_texts"]
@@ -45,7 +48,7 @@ def main(args):
     rewards = torch.tensor(data["rewards"]) if "rewards" in data else None
 
     dataset = ChatDataset(input_texts, output_texts, next_texts, input_token_ids, output_token_ids, rewards)
-    dataloader = DataLoader(dataset, batch_size=args.batch, shuffle=True)
+    dataloader = DataLoader(dataset, batch_size=args.batch, shuffle=True, collate_fn=collate_fn)
 
     total = len(input_texts)
     print(f"loaded {total} samples")
