@@ -62,14 +62,11 @@ def main(args):
         sentiments = predict_sentiments(next_texts_batch)
 
         indexes = torch.nonzero(sentiments).squeeze(-1)
-
+        
+        final_input_texts += select(input_texts[i:i + args.batch], indexes)
+        final_output_texts += select(output_texts[i:i + args.batch], indexes)
         final_next_texts += select(next_texts_batch, indexes)
         rewards += sentiments[indexes].tolist()
-
-        indexes += i
-
-        final_input_texts += select(input_texts, indexes)
-        final_output_texts += select(output_texts, indexes)
         
     extracted = {
         "input_texts": final_input_texts,
