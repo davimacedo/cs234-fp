@@ -1,6 +1,7 @@
 from transformers import GPT2LMHeadModel
 from settings import device
 import argparse
+import torch
 
 def get_model_name(args):
     return "gpt2" if args.small else "gpt2-xl"
