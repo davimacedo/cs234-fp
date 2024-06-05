@@ -4,6 +4,7 @@ import argparse
 from transformers import GPT2Tokenizer
 from tqdm import tqdm
 from settings import HUMAN_PREFIX, HUMAN_PREFIX_LEN, ASSISTANT_PREFIX, ASSISTANT_PREFIX_LEN
+from models import get_model_name
 
 def extract_messages(transcript):
     messages = []
@@ -101,7 +102,7 @@ def main(args):
         extracted["chosen_output_token_ids"] = []
         extracted["rejected_output_token_ids"] = []
 
-        model_name = "gpt2" if args.small else "gpt2-xl"
+        model_name = get_model_name(args)
         tokenizer = GPT2Tokenizer.from_pretrained(model_name)
 
         print("tokenizing texts...")

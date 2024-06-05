@@ -1,9 +1,10 @@
-from transformers import GPT2Tokenizer, GPT2LMHeadModel
+from transformers import GPT2Tokenizer
 import torch
 import argparse
 from tqdm import tqdm
 from settings import device
 from utils import select, calculate_log_probs
+from models import get_model_name, get_model
 
 def main(args):
     data = torch.load("datasets/extracted_anthropic_hh.pth")
@@ -17,14 +18,9 @@ def main(args):
     total = len(input_texts)
     print(f"loaded {total} samples")
 
-    model_name = "gpt2" if args.small else "gpt2-xl"
+    model_name = get_model_name(args)
     tokenizer = GPT2Tokenizer.from_pretrained(model_name)
-    model = GPT2LMHeadModel.from_pretrained(model_name)
-
-    if not args.original:
-        model.load_state_dict(torch.load("parameters/trained-model.pth"))
-
-    model.to(device)
+    model = get_model(model_name, load_state_dict=not args.original)    
     model.eval()
 
     evaluated = 0

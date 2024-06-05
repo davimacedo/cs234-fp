@@ -6,6 +6,7 @@ from sentiment import predict_sentiments
 from utils import select
 import torch
 from transformers import GPT2Tokenizer
+from models import get_model_name
 
 def main(args):
     dataset = load_dataset("lmsys/lmsys-chat-1m", token=TRANSFORMERS_ACCESS_TOKEN)
@@ -80,7 +81,7 @@ def main(args):
         extracted["input_token_ids"] = []
         extracted["output_token_ids"] = []
 
-        model_name = "gpt2" if args.small else "gpt2-xl"
+        model_name = get_model_name(args)
         tokenizer = GPT2Tokenizer.from_pretrained(model_name)
 
         print("tokenizing texts...")

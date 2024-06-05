@@ -1,4 +1,4 @@
-from transformers import GPT2Tokenizer, GPT2LMHeadModel
+from transformers import GPT2Tokenizer
 import torch
 import argparse
 from tqdm import tqdm
@@ -6,6 +6,7 @@ from sentiment import predict_sentiments
 from settings import device
 from utils import select, calculate_log_probs
 from torch.utils.data import Dataset, DataLoader
+from models import get_model_name, get_model
 
 class ChatDataset(Dataset):
     def __init__(self, input_texts, output_texts, next_texts, input_token_ids=None, output_token_ids=None, rewards=None):
@@ -53,13 +54,12 @@ def main(args):
     total = len(input_texts)
     print(f"loaded {total} samples")
 
-    model_name = "gpt2" if args.small else "gpt2-xl"
+    model_name = get_model_name(args)
     tokenizer = GPT2Tokenizer.from_pretrained(model_name)
-    model = GPT2LMHeadModel.from_pretrained(model_name)  
-    model.to(device)
+    model = get_model(model_name)
     model.train()
 
-    optimizer = torch.optim.AdamW(model.parameters(), lr=args.lr)
+    optimizer = torch.optim.AdamW(model.lm_head.parameters(), lr=args.lr)
 
     for epoch in range(args.epochs):
         print(f"training epoch {epoch}")
