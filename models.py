@@ -23,7 +23,7 @@ def get_model(model_name, load_state_dict=False):
     return model
 
 def get_parameters(model):
-    return model.parameters() + model.lm_head.parameters()
+    return list(model.parameters()) + list(model.lm_head.parameters())
 
 def main(args):
     model_name = get_model_name(args)
