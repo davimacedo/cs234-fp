@@ -81,7 +81,7 @@ def main(args):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-s", "--small", action="store_true", help="if true, use gpt2, else, use gpt2-xl")
-    parser.add_argument("-b", "--batch", type=int, default=4, help="the batch size")
+    parser.add_argument("-b", "--batch", type=int, default=2, help="the batch size")
     parser.add_argument("-l", "--lr", type=float, default=1e-6, help="the optimizer learning rate")
 
     args = parser.parse_args()
