@@ -76,7 +76,7 @@ def main(args):
                     rewards_computation_batch = predict_sentiments(next_texts_computation_batch)
                 
                 if isinstance(rewards_computation_batch, torch.Tensor):
-                    rewards_computation_batch.to(device)
+                    rewards_computation_batch = rewards_computation_batch.to(device)
                 elif isinstance(rewards_computation_batch, list):
                     rewards_computation_batch = torch.tensor(rewards_computation_batch, device=device)
                 
