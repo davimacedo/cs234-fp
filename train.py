@@ -36,41 +36,58 @@ def main(args):
         else:
             input_texts_batch = input_texts[i:i + args.batch]
             input_token_ids_batch = [tokenizer.encode(text, add_special_tokens=False) for text in input_texts_batch]
+
+        output_texts_batch = output_texts[i:i + args.batch]
+        output_token_ids_batch = output_token_ids[i:i + args.batch] if output_token_ids is not None else None
+        next_texts_batch = next_texts[i:i + args.batch]
+        rewards_batch = rewards[i:i + args.batch] if rewards is not None else None
+
+        computated = 0
+        accumulated = 0
     
-        min_input_length = min(len(token_ids) for token_ids in input_token_ids_batch)
+        for j in range(0, len(input_token_ids_batch), args.size):
+            input_token_ids_computation_batch = input_token_ids_batch[j:j + args.size]
 
-        log_probs, indexes = calculate_log_probs(
-            model,
-            tokenizer,
-            input_token_ids_batch,
-            min_input_length,
-            output_texts[i:i + args.batch],
-            output_token_ids[i:i + args.batch] if output_token_ids is not None else None
-        )
-        
-        if len(log_probs) > 0:
-            max_log_probs = torch.max(log_probs)
-            log_probs = (log_probs - max_log_probs) / (-max_log_probs)
+            min_input_length = min(len(token_ids) for token_ids in input_token_ids_computation_batch)
 
-            rewards_batch = None
+            log_probs, indexes = calculate_log_probs(
+                model,
+                tokenizer,
+                input_token_ids_computation_batch,
+                min_input_length,
+                output_texts_batch[j:j + args.size],
+                output_token_ids_batch[j:j + args.size] if output_token_ids_batch is not None else None
+            )
+            
+            log_probs_length = len(log_probs)
 
-            if rewards is not None:
-                rewards_batch = select(rewards[i:i + args.batch], indexes)
-            else:
-                next_texts_batch = select(next_texts[i:i + args.batch], indexes)
-                rewards_batch = predict_sentiments(next_texts_batch)
-            
-            if isinstance(rewards_batch, torch.Tensor):
-                rewards_batch = rewards_batch.to(device)
-            elif isinstance(rewards_batch, list):
-                rewards_batch = torch.tensor(rewards_batch, device=device)
-            
-            loss = -torch.mean(torch.exp(log_probs) * rewards_batch)
-            
-            loss.backward()
+            if log_probs_length > 0:
+                computated += log_probs_length
+
+                max_log_probs = torch.max(log_probs)
+                log_probs = (log_probs - max_log_probs) / (-max_log_probs)
+
+                rewards_computation_batch = None
+
+                if rewards_batch is not None:
+                    rewards_computation_batch = select(rewards_batch[j:j + args.size], indexes)
+                else:
+                    next_texts_computation_batch = select(next_texts_batch[j:j + args.size], indexes)
+                    rewards_computation_batch = predict_sentiments(next_texts_computation_batch)
+                
+                if isinstance(rewards_computation_batch, torch.Tensor):
+                    rewards_computation_batch.to(device)
+                elif isinstance(rewards_computation_batch, list):
+                    rewards_computation_batch = torch.tensor(rewards_computation_batch, device=device)
+                
+                loss = -torch.sum(torch.exp(log_probs) * rewards_computation_batch)
+                accumulated += loss.item()
+                loss.backward()
+
+        if computated > 0:
             optimizer.step()
 
-            tqdm.write(f"batch loss = {loss.item()}")
+            tqdm.write(f"batch loss = {accumulated / computated}")
 
     torch.save(
         model.state_dict(),
@@ -80,9 +97,9 @@ def main(args):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-s", "--small", action="store_true", help="if true, use gpt2, else, use gpt2-xl")
-    parser.add_argument("-b", "--batch", type=int, default=2, help="the batch size")
+    parser.add_argument("-b", "--batch", type=int, default=32, help="the batch size")
     parser.add_argument("-l", "--lr", type=float, default=1e-6, help="the optimizer learning rate")
-    parser.add_argument("-s", "--size", type=int, default=2, help="the size for computation")
+    parser.add_argument("-z", "--size", type=int, default=2, help="the size for computation")
 
     args = parser.parse_args()
 
