@@ -2,11 +2,8 @@ from datasets import load_dataset
 import torch
 import argparse
 from transformers import GPT2Tokenizer
-
-HUMAN_PREFIX = "\n\nHuman: "
-HUMAN_PREFIX_LEN = len(HUMAN_PREFIX)
-ASSISTANT_PREFIX = "\n\nAssistant: "
-ASSISTANT_PREFIX_LEN = len(ASSISTANT_PREFIX)
+from tqdm import tqdm
+from settings import HUMAN_PREFIX, HUMAN_PREFIX_LEN, ASSISTANT_PREFIX, ASSISTANT_PREFIX_LEN
 
 def extract_messages(transcript):
     messages = []
@@ -59,8 +56,10 @@ def main(args):
     input_texts = []
     chosen_output_texts = []
     rejected_output_texts = []
+
+    print("parsing dataset...")
     
-    for row in train_dataset:
+    for row in tqdm(train_dataset):
         chosen_messages = extract_messages(row["chosen"])
         rejected_messages = extract_messages(row["rejected"])
         rejected_messages_length = len(rejected_messages)
@@ -90,28 +89,32 @@ def main(args):
                     rejected_output_texts.append(rejected_message["content"])
 
                 input_text += chosen_message["content"]
-        
-    torch.save(
-        {
-            "input_texts": input_texts,
-            "chosen_output_texts": chosen_output_texts,
-            "rejected_output_texts": rejected_output_texts
-        },
-        "datasets/extracted_anthropic_hh.pth"
-    )
+
+    extracted = {
+        "input_texts": input_texts,
+        "chosen_output_texts": chosen_output_texts,
+        "rejected_output_texts": rejected_output_texts
+    }
 
     if args.tokenize:
+        extracted["input_token_ids"] = []
+        extracted["chosen_output_token_ids"] = []
+        extracted["rejected_output_token_ids"] = []
+
         model_name = "gpt2" if args.small else "gpt2-xl"
         tokenizer = GPT2Tokenizer.from_pretrained(model_name)
 
-        torch.save(
-            {
-                "input_token_ids": [tokenizer.encode(text, add_special_tokens=False) for text in input_texts],
-                "chosen_output_token_ids": [tokenizer.encode(text, add_special_tokens=False) for text in chosen_output_texts],
-                "rejected_output_token_ids": [tokenizer.encode(text, add_special_tokens=False) for text in rejected_output_texts],
-            },
-            "datasets/tokenized_anthropic_hh.pth"
-        )
+        print("tokenizing texts...")
+
+        for input_text, chosen_output_text, rejected_output_text in tqdm(zip(input_texts, chosen_output_texts, rejected_output_texts)):
+            extracted["input_token_ids"].append(tokenizer.encode(input_text, add_special_tokens=False))
+            extracted["chosen_output_token_ids"].append(tokenizer.encode(chosen_output_text, add_special_tokens=False))
+            extracted["rejected_output_token_ids"].append(tokenizer.encode(rejected_output_text, add_special_tokens=False))
+
+    torch.save(
+        extracted,
+        "datasets/extracted_anthropic_hh.pth"
+    )
 
     print(f"extracted {len(input_texts)} samples from {len(train_dataset)} original samples")
 

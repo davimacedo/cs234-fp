@@ -2,19 +2,18 @@ from transformers import GPT2Tokenizer, GPT2LMHeadModel
 import torch
 import argparse
 from tqdm import tqdm
-from evaluate import select, calculate_log_probs
 from sentiment import predict_sentiments
-
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+from settings import device
+from utils import select, calculate_log_probs
 
 def main(args):
     data = torch.load("datasets/extracted_lm_sys_chat.pth")
     input_texts = data["input_texts"]
     output_texts = data["output_texts"]
     next_texts = data["next_texts"]
-    input_token_ids = data["input_token_ids"] if input_token_ids in data else None
-    output_token_ids = data["output_token_ids"] if output_token_ids in data else None
-    rewards = data["rewards"] if rewards in data else None
+    input_token_ids = torch.tensor(data["input_token_ids"]) if "input_token_ids" in data else None
+    output_token_ids = torch.tensor(data["output_token_ids"]) if "output_token_ids" in data else None
+    rewards = torch.tensor(data["rewards"]) if "rewards" in data else None
 
     total = len(input_texts)
     print(f"loaded {total} samples")
@@ -46,8 +45,11 @@ def main(args):
             output_texts[i:i + args.batch],
             output_token_ids[i:i + args.batch] if output_token_ids is not None else None
         )
-
-        probs = torch.exp(select(log_probs, indexes))
+        
+        max_log_probs = torch.max(log_probs)
+        log_probs = log_probs - max_log_probs
+        log_probs = log_probs / (-max_log_probs)
+        probs = torch.exp(log_probs)
 
         rewards_batch = None
 
@@ -58,8 +60,8 @@ def main(args):
             rewards_batch = predict_sentiments(next_texts_batch)
         
         rewards_batch.to(device)
-
-        loss = -torch.mean(probs * rewards)
+        
+        loss = -torch.mean(probs * rewards_batch)
 
         optimizer.zero_grad()
         loss.backward()
@@ -68,7 +70,7 @@ def main(args):
         tqdm.write(f"batch loss = {loss.item()}")
 
     torch.save(
-        model,
+        model.state_dict(),
         "parameters/trained-model.pth"
     )
 
