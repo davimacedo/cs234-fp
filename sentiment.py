@@ -4,7 +4,7 @@ from settings import device
 
 MODEL_PATH = "cardiffnlp/twitter-roberta-base-sentiment-latest"
 
-tokenizer = AutoTokenizer.from_pretrained(MODEL_PATH)
+tokenizer = AutoTokenizer.from_pretrained(MODEL_PATH, device=device)
 tokenizer.model_max_length = 512
 sentiment_pipeline = pipeline(
     "sentiment-analysis",

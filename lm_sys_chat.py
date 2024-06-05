@@ -5,6 +5,7 @@ from tqdm import tqdm
 from sentiment import predict_sentiments
 from utils import select
 import torch
+from transformers import GPT2Tokenizer
 
 def main(args):
     dataset = load_dataset("lmsys/lmsys-chat-1m", token=TRANSFORMERS_ACCESS_TOKEN)
