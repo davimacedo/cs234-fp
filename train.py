@@ -46,31 +46,32 @@ def main(args):
             output_token_ids[i:i + args.batch] if output_token_ids is not None else None
         )
         
-        max_log_probs = torch.max(log_probs)
-        log_probs = log_probs - max_log_probs
-        log_probs = log_probs / (-max_log_probs)
-        probs = torch.exp(log_probs)
+        if len(log_probs) > 0:
+            max_log_probs = torch.max(log_probs)
+            log_probs = log_probs - max_log_probs
+            log_probs = log_probs / (-max_log_probs)
+            probs = torch.exp(log_probs)
 
-        rewards_batch = None
+            rewards_batch = None
 
-        if rewards is not None:
-            rewards_batch = select(rewards[i:i + args.batch], indexes)
-        else:
-            next_texts_batch = select(next_texts[i:i + args.batch], indexes)
-            rewards_batch = predict_sentiments(next_texts_batch)
-        
-        if isinstance(rewards_batch, torch.Tensor):
-            rewards_batch = rewards_batch.to(device)
-        elif isinstance(rewards_batch, list):
-            rewards_batch = torch.tensor(rewards_batch, device=device)
-        
-        loss = -torch.mean(probs * rewards_batch)
+            if rewards is not None:
+                rewards_batch = select(rewards[i:i + args.batch], indexes)
+            else:
+                next_texts_batch = select(next_texts[i:i + args.batch], indexes)
+                rewards_batch = predict_sentiments(next_texts_batch)
+            
+            if isinstance(rewards_batch, torch.Tensor):
+                rewards_batch = rewards_batch.to(device)
+            elif isinstance(rewards_batch, list):
+                rewards_batch = torch.tensor(rewards_batch, device=device)
+            
+            loss = -torch.mean(probs * rewards_batch)
 
-        optimizer.zero_grad()
-        loss.backward()
-        optimizer.step()
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
 
-        tqdm.write(f"batch loss = {loss.item()}")
+            tqdm.write(f"batch loss = {loss.item()}")
 
     torch.save(
         model.state_dict(),
