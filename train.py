@@ -27,6 +27,8 @@ def main(args):
     optimizer = torch.optim.AdamW(model.parameters(), lr=args.lr)
 
     for i in tqdm(range(0, total, args.batch)):
+        optimizer.zero_grad()
+        
         input_token_ids_batch = None
 
         if input_token_ids is not None:
@@ -48,9 +50,7 @@ def main(args):
         
         if len(log_probs) > 0:
             max_log_probs = torch.max(log_probs)
-            log_probs = log_probs - max_log_probs
-            log_probs = log_probs / (-max_log_probs)
-            probs = torch.exp(log_probs)
+            log_probs = (log_probs - max_log_probs) / (-max_log_probs)
 
             rewards_batch = None
 
@@ -65,9 +65,8 @@ def main(args):
             elif isinstance(rewards_batch, list):
                 rewards_batch = torch.tensor(rewards_batch, device=device)
             
-            loss = -torch.mean(probs * rewards_batch)
-
-            optimizer.zero_grad()
+            loss = -torch.mean(torch.exp(log_probs) * rewards_batch)
+            
             loss.backward()
             optimizer.step()
 
