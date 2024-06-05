@@ -13,6 +13,12 @@ def get_model(model_name, load_state_dict=False):
 
     model.to(device)
 
+    for param in model.parameters():
+        param.requires_grad=False
+
+    for param in model.lm_head.parameters():
+        param.requires_grad=False
+
     return model
 
 def main(args):
