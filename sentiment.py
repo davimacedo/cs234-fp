@@ -11,7 +11,8 @@ def initialize():
 
     if sentiment_pipeline is None:
         print("initialing sentiment pipeline...")
-        model = AutoModelForSequenceClassification.from_pretrained(MODEL_PATH, device=device)
+        model = AutoModelForSequenceClassification.from_pretrained(MODEL_PATH)
+        model.to(device)
         model.eval()
         tokenizer = AutoTokenizer.from_pretrained(MODEL_PATH, device=device)
         tokenizer.model_max_length = 512
