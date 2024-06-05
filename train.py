@@ -102,8 +102,9 @@ def main(args):
                 if log_probs_length > 0:
                     computated += log_probs_length
 
-                    max_log_probs = torch.max(log_probs)
-                    log_probs = (log_probs - max_log_probs) / (-max_log_probs)
+                    if args.normalize:
+                        max_log_probs = torch.max(log_probs)
+                        log_probs = (log_probs - max_log_probs) / (-max_log_probs)
 
                     rewards_computation_batch = None
 
@@ -118,7 +119,7 @@ def main(args):
                     elif isinstance(rewards_computation_batch, list):
                         rewards_computation_batch = torch.tensor(rewards_computation_batch, device=device)
                     
-                    loss = -torch.sum(torch.exp(log_probs) * rewards_computation_batch)
+                    loss = -torch.sum(torch.exp(log_probs / args.temperature) * rewards_computation_batch)
                     accumulated += loss.item()
                     loss.backward()
 
@@ -146,6 +147,8 @@ if __name__ == "__main__":
     parser.add_argument("-l", "--lr", type=float, default=1e-6, help="the optimizer learning rate")
     parser.add_argument("-z", "--size", type=int, default=2, help="the size for computation")
     parser.add_argument("-e", "--epochs", type=int, default=3, help="the number of epochs")
+    parser.add_argument("-n", "--normalize", action="store_true", help="normalize log_probs")
+    parser.add_argument("-t", "--temperature", type=float, default=100, help="the size for computation")
 
     args = parser.parse_args()
 
