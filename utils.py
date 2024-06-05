@@ -21,6 +21,9 @@ def calculate_log_probs(model, tokenizer, input_token_ids_batch, min_input_lengt
             batch_token_ids.append(token_ids)
             indexes.append(i)
             input_token_ids_lengths.append(len(input_token_ids))
+    
+    if len(batch_token_ids) == 0:
+        return batch_token_ids, indexes
         
     max_length = max(len(token_ids) for token_ids in batch_token_ids)
     padded_batch_token_ids = torch.tensor([token_ids + [tokenizer.eos_token_id] * (max_length - len(token_ids)) for token_ids in batch_token_ids], dtype=torch.long, device=device)
