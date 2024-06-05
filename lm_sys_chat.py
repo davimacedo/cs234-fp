@@ -8,7 +8,7 @@ import torch
 
 def main(args):
     dataset = load_dataset("lmsys/lmsys-chat-1m", token=TRANSFORMERS_ACCESS_TOKEN)
-    train_dataset = dataset["train"]
+    train_dataset = dataset["train"].select(range(args.amount))
 
     input_texts = []
     output_texts = []
@@ -106,6 +106,7 @@ if __name__ == "__main__":
     parser.add_argument("-s", "--small", action="store_true", help="if true, use gpt2, else, use gpt2-xl")
     parser.add_argument("-t", "--tokenize", action="store_true", help="tokenize texts")
     parser.add_argument("-b", "--batch", type=int, default=16, help="the batch size")
+    parser.add_argument("-a", "--amount", type=int, default=1000000, help="the amount of rows to extract")
 
     args = parser.parse_args()
 
