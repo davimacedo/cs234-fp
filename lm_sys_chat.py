@@ -1,4 +1,4 @@
-from datasets import load_dataset
+from datasets import load_dataset, Dataset
 import argparse
 from settings import TRANSFORMERS_ACCESS_TOKEN, HUMAN_PREFIX, HUMAN_PREFIX_LEN, ASSISTANT_PREFIX, ASSISTANT_PREFIX_LEN
 from tqdm import tqdm
@@ -60,8 +60,8 @@ def main(args):
 
     for i in tqdm(range(0, len(next_texts), args.batch)):
         next_texts_batch = next_texts[i:i + args.batch]
-
-        sentiments = predict_sentiments(next_texts_batch, batch_size=args.batch)
+        
+        sentiments = predict_sentiments(Dataset.from_list(next_texts_batch))
 
         indexes = torch.nonzero(sentiments).squeeze(-1)
         
