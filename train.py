@@ -144,7 +144,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-s", "--small", action="store_true", help="if true, use gpt2, else, use gpt2-xl")
     parser.add_argument("-b", "--batch", type=int, default=32, help="the batch size")
-    parser.add_argument("-l", "--lr", type=float, default=1e-6, help="the optimizer learning rate")
+    parser.add_argument("-l", "--lr", type=float, default=5e-5, help="the optimizer learning rate")
     parser.add_argument("-z", "--size", type=int, default=2, help="the size for computation")
     parser.add_argument("-e", "--epochs", type=int, default=100, help="the number of epochs")
     parser.add_argument("-n", "--normalize", action="store_true", help="normalize log_probs")
