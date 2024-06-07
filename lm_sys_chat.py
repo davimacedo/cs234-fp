@@ -61,7 +61,7 @@ def main(args):
     for i in tqdm(range(0, len(next_texts), args.batch)):
         next_texts_batch = next_texts[i:i + args.batch]
 
-        sentiments = predict_sentiments(next_texts_batch)
+        sentiments = predict_sentiments(next_texts_batch, batch_size=args.batch)
 
         indexes = torch.nonzero(sentiments).squeeze(-1)
         
@@ -104,7 +104,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-s", "--small", action="store_true", help="if true, use gpt2, else, use gpt2-xl")
     parser.add_argument("-t", "--tokenize", action="store_true", help="tokenize texts")
-    parser.add_argument("-b", "--batch", type=int, default=512, help="the batch size")
+    parser.add_argument("-b", "--batch", type=int, default=16, help="the batch size")
     parser.add_argument("-a", "--amount", type=int, default=1000000, help="the amount of rows to extract")
 
     args = parser.parse_args()
