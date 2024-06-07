@@ -29,7 +29,7 @@ def predict_sentiments(texts):
     initialize()
 
     with torch.no_grad():
-        sentiments = sentiment_pipeline(texts)
+        sentiments = sentiment_pipeline(texts, batch_size=len(texts))
 
         scores = []
 
