@@ -5,7 +5,7 @@ import torch
 from peft import get_peft_model, LoraConfig
 
 def get_model_name(args):
-    return "gpt2" if args.small else "gpt2-xl"
+    return "gpt2-xl" if args.large else "gpt2"
 
 def get_model(model_name, load_state_dict=False):
     model = GPT2LMHeadModel.from_pretrained(model_name)
@@ -59,7 +59,7 @@ def main(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("-s", "--small", action="store_true", help="if true, use gpt2, else, use gpt2-xl")
+    parser.add_argument("-l", "--large", action="store_true", help="if true, use gpt2-xl, else, use gpt2")
     
     args = parser.parse_args()
 
