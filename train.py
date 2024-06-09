@@ -40,7 +40,13 @@ def collate_fn(batch):
     return batch
 
 def main(args):
-    data = torch.load("datasets/extracted_lm_sys_chat.pth")
+    data = None
+
+    if args.dataset == "lm_sys_chat":
+        data = torch.load("datasets/extracted_lm_sys_chat.pth")
+    elif args.dataset == "anthropic_hh":
+        data = torch.load("datasets/extracted_anthropic_hh_rewards.pth")
+    
     input_texts = data["input_texts"]
     output_texts = data["output_texts"]
     next_texts = data["next_texts"]
@@ -142,6 +148,7 @@ def main(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
+    parser.add_argument("-d", "--dataset", type=str, default="lm_sys_chat", help="lm_sys_chat or anthropic_hh")
     parser.add_argument("-l", "--large", action="store_true", help="if true, use gpt2-xl, else, use gpt2")
     parser.add_argument("-b", "--batch", type=int, default=64, help="the batch size")
     parser.add_argument("-r", "--lr", type=float, default=1e-6, help="the optimizer learning rate")
