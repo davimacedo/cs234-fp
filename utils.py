@@ -36,7 +36,7 @@ def calculate_log_probs(model, tokenizer, input_token_ids_batch, min_input_lengt
         probs_mask[i][input_token_ids_lengths[i]:len(batch_token_ids[i])] = 1
 
     logits = model(padded_batch_token_ids, attention_mask=attention_mask).logits[:, min_input_length:]
-    probs = torch.softmax(logits, dim = -1)
+    probs = torch.softmax(logits, dim=-1)
     probs_mask = probs_mask[:, min_input_length:]
     padded_batch_token_ids = padded_batch_token_ids[:, min_input_length:]
 

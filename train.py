@@ -119,7 +119,8 @@ def main(args):
                     elif isinstance(rewards_computation_batch, list):
                         rewards_computation_batch = torch.tensor(rewards_computation_batch, device=device)
                     
-                    loss = -torch.sum(torch.exp(log_probs / args.temperature) * rewards_computation_batch)
+                    max_log_prob = torch.max(log_probs)
+                    loss = -torch.sum(torch.exp(torch.clamp((log_probs - max_log_prob) / args.temperature, min=-100)) * rewards_computation_batch)
                     accumulated += loss.item()
                     loss.backward()
 
