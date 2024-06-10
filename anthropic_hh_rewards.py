@@ -13,6 +13,9 @@ def main(args):
     dataset = load_dataset("Anthropic/hh-rlhf")
     train_dataset = dataset["train"]
 
+    if args.amount >= 0:
+        train_dataset = train_dataset.select(range(args.amount))
+
     input_texts = []
     output_texts = []
     next_texts = []
@@ -112,6 +115,7 @@ if __name__ == "__main__":
     parser.add_argument("-t", "--tokenize", action="store_true", help="tokenize texts")
     parser.add_argument("-b", "--batch", type=int, default=256, help="the batch size")
     parser.add_argument("-n", "--neutral", action="store_true", help="include neutral rewards")
+    parser.add_argument("-a", "--amount", type=int, default=-1, help="the amount of rows to extract")
 
     args = parser.parse_args()
 
