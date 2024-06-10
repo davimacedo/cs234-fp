@@ -7,6 +7,7 @@ from utils import ChatDataset, collate_fn
 from sentiment import predict_sentiments
 import sys
 from settings import device
+import argparse
 
 class RewardsModel(nn.Module):
     def __init__(self, model_name):
