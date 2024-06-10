@@ -1,12 +1,12 @@
 from transformers import GPT2Tokenizer, GPT2Model
 import torch.nn
 from peft import get_peft_model, LoraConfig
-from datasets import ChatDataset, collate_fn
 import random
 from models import get_model_name
-from utils import device
+from utils import ChatDataset, collate_fn
 from sentiment import predict_sentiments
 import sys
+from settings import device
 
 class RewardsModel(nn.Module):
     def __init__(self, model_name):

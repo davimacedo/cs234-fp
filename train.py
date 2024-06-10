@@ -4,10 +4,9 @@ import argparse
 from tqdm import tqdm
 from sentiment import predict_sentiments
 from settings import device
-from utils import select, calculate_log_probs
+from utils import select, calculate_log_probs, ChatDataset, collate_fn
 from torch.utils.data import DataLoader
 from models import get_model_name, get_model, get_parameters
-from datasets import ChatDataset, collate_fn
 
 def main(args):
     data = None
