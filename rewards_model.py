@@ -1,4 +1,5 @@
 from transformers import GPT2Tokenizer, GPT2Model
+import torch
 import torch.nn as nn
 from peft import get_peft_model, LoraConfig
 import random
