@@ -198,7 +198,8 @@ def main(args):
                 else:
                     labels = predict_sentiments(next_texts_batch)
 
-                labels.to(device)
+                labels = labels.to(device)
+
                 loss = nn.MSELoss()(output_computation_batch, labels)
                 batch_loss = loss.item()                
 
