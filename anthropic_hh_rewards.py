@@ -63,12 +63,18 @@ def main(args):
         
         sentiments = predict_sentiments(next_texts_batch)
 
-        indexes = torch.nonzero(sentiments).squeeze(-1)
-        
-        final_input_texts += select(input_texts[i:i + args.batch], indexes)
-        final_output_texts += select(output_texts[i:i + args.batch], indexes)
-        final_next_texts += select(next_texts_batch, indexes)
-        rewards += sentiments[indexes].tolist()
+        if args.neutral:
+            final_input_texts += input_texts[i:i + args.batch]
+            final_output_texts += output_texts[i:i + args.batch]
+            final_next_texts += next_texts_batch
+            rewards += sentiments.tolist()
+        else:
+            indexes = torch.nonzero(sentiments).squeeze(-1)
+            
+            final_input_texts += select(input_texts[i:i + args.batch], indexes)
+            final_output_texts += select(output_texts[i:i + args.batch], indexes)
+            final_next_texts += select(next_texts_batch, indexes)
+            rewards += sentiments[indexes].tolist()
 
     extracted = {
         "input_texts": final_input_texts,
@@ -105,6 +111,7 @@ if __name__ == "__main__":
     parser.add_argument("-l", "--large", action="store_true", help="if true, use gpt2-xl, else, use gpt2")
     parser.add_argument("-t", "--tokenize", action="store_true", help="tokenize texts")
     parser.add_argument("-b", "--batch", type=int, default=256, help="the batch size")
+    parser.add_argument("-n", "--neutral", action="store_true", help="include neutral rewards")
 
     args = parser.parse_args()
 
