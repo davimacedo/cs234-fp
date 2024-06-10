@@ -142,7 +142,7 @@ def main(args):
                     next_texts_computation_batch = next_texts_batch[j:j + args.size]
                     labels = predict_sentiments(next_texts_computation_batch)
 
-                labels.to(device)
+                labels = labels.to(device)
 
                 loss = nn.MSELoss()(output_computation_batch, labels)
                 accumulated += loss.item()
