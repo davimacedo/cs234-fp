@@ -10,6 +10,7 @@ import sys
 from settings import device
 import argparse
 from torch.utils.data import DataLoader
+from tqdm import tqdm
 
 class RewardsModel(nn.Module):
     def __init__(self, model_name):
