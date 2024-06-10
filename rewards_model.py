@@ -88,6 +88,7 @@ def main(args):
 
     model_name = get_model_name(args)
     tokenizer = GPT2Tokenizer.from_pretrained(model_name)
+    tokenizer.pad_token_id = tokenizer.eos_token_id
     model = RewardsModel(model_name)
     model.to(device)
 
