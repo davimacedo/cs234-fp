@@ -142,7 +142,7 @@ def main(args):
                     next_texts_computation_batch = next_texts_batch[j:j + args.size]
                     labels = predict_sentiments(next_texts_computation_batch)
 
-                labels = labels.to(device)
+                labels = labels.unsqueeze(1).to(device)
 
                 loss = nn.MSELoss()(output_computation_batch, labels)
                 accumulated += loss.item()
@@ -198,7 +198,7 @@ def main(args):
                 else:
                     labels = predict_sentiments(next_texts_batch)
 
-                labels = labels.to(device)
+                labels = labels.unsqueeze(1).to(device)
 
                 loss = nn.MSELoss()(output_computation_batch, labels)
                 batch_loss = loss.item()                
