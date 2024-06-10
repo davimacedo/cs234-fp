@@ -119,7 +119,7 @@ def main(args):
             computated = 0
             accumulated = 0
 
-            for j in range(0, len(input_token_ids_batch), args.size):
+            for j in range(0, len(input_texts_batch), args.size):
                 input_texts_computation_batch = input_texts_batch[j:j + args.size]
 
                 input_computation_batch = tokenizer.encode(
