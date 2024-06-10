@@ -9,6 +9,7 @@ from sentiment import predict_sentiments
 import sys
 from settings import device
 import argparse
+from datasets import DataLoader
 
 class RewardsModel(nn.Module):
     def __init__(self, model_name):
