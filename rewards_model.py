@@ -122,10 +122,11 @@ def main(args):
             for j in range(0, len(input_texts_batch), args.size):
                 input_texts_computation_batch = input_texts_batch[j:j + args.size]
 
-                input_computation_batch = tokenizer.encode(
+                input_computation_batch = tokenizer(
                     input_texts_computation_batch,
                     max_length=1024,
                     truncation="only_first",
+                    padding=True,
                     return_tensors="pt"
                 )
                 input_computation_batch.to(device)
