@@ -181,10 +181,11 @@ def main(args):
                     if rewards is not None:
                         rewards_batch.append(item.get("reward"))
                 
-                input_computation_batch = tokenizer.encode(
+                input_computation_batch = tokenizer(
                     input_texts_batch,
                     max_length=1024,
                     truncation="only_first",
+                    padding=True,
                     return_tensors="pt"
                 )
                 input_computation_batch.to(device)
