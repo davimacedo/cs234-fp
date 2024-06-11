@@ -8,6 +8,7 @@ from models import get_model_name
 from anthropic_hh import extract_messages
 from sentiment import predict_sentiments
 from utils import select
+import random
 
 def main(args):
     dataset = load_dataset("Anthropic/hh-rlhf")
@@ -66,7 +67,7 @@ def main(args):
         
         sentiments = predict_sentiments(next_texts_batch)
 
-        if args.neutral:
+        if args.neutral > 0 and random.random() < args.neutral:
             final_input_texts += input_texts[i:i + args.batch]
             final_output_texts += output_texts[i:i + args.batch]
             final_next_texts += next_texts_batch
@@ -114,7 +115,7 @@ if __name__ == "__main__":
     parser.add_argument("-l", "--large", action="store_true", help="if true, use gpt2-xl, else, use gpt2")
     parser.add_argument("-t", "--tokenize", action="store_true", help="tokenize texts")
     parser.add_argument("-b", "--batch", type=int, default=256, help="the batch size")
-    parser.add_argument("-n", "--neutral", action="store_true", help="include neutral rewards")
+    parser.add_argument("-n", "--neutral", type=float, default=0, help="include neutral rewards with specified rate")
     parser.add_argument("-a", "--amount", type=int, default=-1, help="the amount of rows to extract")
 
     args = parser.parse_args()

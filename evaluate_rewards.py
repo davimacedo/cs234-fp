@@ -19,7 +19,7 @@ def main(args):
     tokenizer = GPT2Tokenizer.from_pretrained(model_name)
     tokenizer.pad_token_id = tokenizer.eos_token_id
     model = RewardsModel(model_name)
-    model.load_state_dict(torch.load("parameters/trained-model.pth"))
+    model.load_state_dict(torch.load("parameters/trained-rewards-model.pth"))
     model.to(device)
     model.eval()
 

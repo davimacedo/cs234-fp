@@ -218,7 +218,7 @@ def main(args):
 
             torch.save(
                 model.state_dict(),
-                "parameters/trained-model.pth"
+                "parameters/trained-rewards-model.pth"
             )
 
 if __name__ == "__main__":
