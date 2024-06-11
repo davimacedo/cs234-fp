@@ -68,13 +68,11 @@ def main(args):
         sentiments = predict_sentiments(next_texts_batch)
 
         if args.neutral > 0 and random.random() < args.neutral:
-            print("here1")
             final_input_texts += input_texts[i:i + args.batch]
             final_output_texts += output_texts[i:i + args.batch]
             final_next_texts += next_texts_batch
             rewards += sentiments.tolist()
         else:
-            print("here2")
             indexes = torch.nonzero(sentiments).squeeze(-1)
             
             final_input_texts += select(input_texts[i:i + args.batch], indexes)
@@ -110,7 +108,7 @@ def main(args):
         "datasets/extracted_anthropic_hh_rewards.pth"
     )
 
-    print(f"extracted {len(input_texts)} samples from {len(train_dataset)} original samples")
+    print(f"extracted {len(final_input_texts)} samples from {len(train_dataset)} original samples")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
