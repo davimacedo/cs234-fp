@@ -90,6 +90,8 @@ def main(args):
     tokenizer = GPT2Tokenizer.from_pretrained(model_name)
     tokenizer.pad_token_id = tokenizer.eos_token_id
     model = RewardsModel(model_name)
+    if args.pretrained:
+        model.load_state_dict(torch.load("parameters/trained-rewards-model.pth"))
     model.to(device)
 
     optimizer = torch.optim.AdamW(model.parameters(), lr=args.lr)
@@ -224,6 +226,7 @@ def main(args):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-d", "--dataset", type=str, default="lm_sys_chat", help="lm_sys_chat or anthropic_hh")
+    parser.add_argument("-p", "--pretrained", action="store_true", help="loads a pretrained model")
     parser.add_argument("-l", "--large", action="store_true", help="if true, use gpt2-xl, else, use gpt2")
     parser.add_argument("-b", "--batch", type=int, default=64, help="the batch size")
     parser.add_argument("-r", "--lr", type=float, default=1e-6, help="the optimizer learning rate")
