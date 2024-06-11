@@ -70,7 +70,6 @@ def main(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("-o", "--original", action="store_true", help="if true, use original model")
     parser.add_argument("-l", "--large", action="store_true", help="if true, use gpt2-xl, else, use gpt2")
     parser.add_argument("-b", "--batch", type=int, default=16, help="the batch size")
 
